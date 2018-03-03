@@ -1,1 +1,4 @@
 Data/*
+.DS_Store
+.Rhistory
+.ipynb_checkpoints/
