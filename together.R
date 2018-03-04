@@ -5,13 +5,17 @@ setwd("/Users/vaibhav/Documents/Year4_Senior/Brown Datathon 2018/browndatathon/"
 
 abstracts <- read.csv("abstracts.csv", stringsAsFactors = FALSE)
 ratings <- read.csv("ratings.csv", stringsAsFactors = FALSE)
+alt <- read.csv("AltScore.csv", stringsAsFactors = FALSE)
 
 abstracts <- abstracts[,2:ncol(abstracts)]
 ratings <- ratings[,2:ncol(ratings)]
 
 data <- ratings %>%
   left_join(abstracts, by = c("manuscript_DOI" = "doi")) %>%
-  filter(year > 0)
+  filter(year > 0) %>%
+  filter(nchar(abstract) > 0) %>%
+  left_join(alt, by = c("manuscript_DOI" = "DOI")) %>%
+  filter(!is.na(AltScore))
 
 data$abstract_nchar <- nchar(data$abstract)
 data$abstract_num_digits <- str_count(data$abstract, "0") + str_count(data$abstract, "1") +
@@ -41,15 +45,15 @@ data$year <- as.factor(data$year)
 
 write.csv(data, "together_data.csv")
 
-lm_dv <- lm(discovery_value ~ abstract_nchar + abstract_num_digits + 
+lm_dv <- lm(discovery_value ~ abstract_nchar + abstract_num_digits + log1p(abstract_num_digits) + 
             abstract_has_digits + abstract_findings_results + version_id + year + expertise +
-            dv_words + act_words + con_words, data)  
-lm_act <- lm(actionability ~ abstract_nchar + abstract_num_digits + 
+            dv_words + act_words + con_words + AltScore + log(AltScore), data)  
+lm_act <- lm(actionability ~ abstract_nchar + abstract_num_digits + log1p(abstract_num_digits) + 
               abstract_has_digits + abstract_findings_results + version_id + year + expertise +
-              dv_words + act_words + con_words, data)  
-lm_con <- lm(concreteness_confidence ~ abstract_nchar + abstract_num_digits + 
+              dv_words + act_words + con_words + AltScore + log(AltScore), data)  
+lm_con <- lm(concreteness_confidence ~ abstract_nchar + abstract_num_digits + log1p(abstract_num_digits) + 
               abstract_has_digits + abstract_findings_results + version_id + year + expertise +
-              dv_words + act_words + con_words, data)  
+              dv_words + act_words + con_words + AltScore + log(AltScore), data)  
 summary(lm_dv)
 summary(lm_act)
 summary(lm_con)
