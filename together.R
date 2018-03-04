@@ -39,6 +39,8 @@ data$con_words <- str_count(data$abstract, "accura") +
 data$version_id <- as.factor(data$version_id)  
 data$year <- as.factor(data$year)
 
+write.csv(data, "together_data.csv")
+
 lm_dv <- lm(discovery_value ~ abstract_nchar + abstract_num_digits + 
             abstract_has_digits + abstract_findings_results + version_id + year + expertise +
             dv_words + act_words + con_words, data)  
