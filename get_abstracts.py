@@ -18,6 +18,7 @@ years = pd.Series(name = "year")
 for i in range(len(dois)):
 	d = re.sub("/", "%2F", dois[i])
 	url = prefix + d + suffix
+	urls = urls.append(pd.Series([url]))
 	print(str(i) + " / " + str(len(dois)) + ": " + url)
 	page = urllib.request.urlopen(url)
 	soup = BeautifulSoup(page, "html.parser")
@@ -49,7 +50,6 @@ for i in range(len(dois)):
 	abstract = re.sub("\n", " ", abstract)
 	# authors = authors.append(pd.Series([article.authors]))
 	abstracts = abstracts.append(pd.Series([re.sub(",", "", abstract)]))
-	urls = urls.append(pd.Series([url]))
 
 abstracts_table = pd.DataFrame(data = { "doi" : dois, "abstract" : abstracts, "url" : url, "year" : years })
 
