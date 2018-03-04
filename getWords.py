@@ -48,7 +48,7 @@ retmode = "&retmode=xml&api_key=4253acd8482343f9a87e9563b1a14c873908"
 # In[305]:
 
 # VERSION 1
-allYears = havePMID['Year'].astype(int)
+allYears = sorted(havePMID['Year'].astype(int).unique(), reverse = True)
 BuzzDict = {}
 MeshDict = {}
 idDict = {}
