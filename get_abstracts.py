@@ -11,26 +11,27 @@ de = pd.read_csv("Data/DiscoveryEngine/DiscoveryEngine_Dataset_2_28_2018.csv")
 dois = de["manuscript_DOI"].unique()
 
 # authors = pd.Series(name = "authors")
-abstracts = pd.Series(name = "abstract")
-urls = pd.Series(name = "url")
-years = pd.Series(name = "year")
+abstracts = list()
+urls = list()
+years = list()
 
 for i in range(len(dois)):
 	d = re.sub("/", "%2F", dois[i])
 	url = prefix + d + suffix
+	urls = urls + [url]
 	print(str(i) + " / " + str(len(dois)) + ": " + url)
 	page = urllib.request.urlopen(url)
 	soup = BeautifulSoup(page, "html.parser")
 	soup_split = soup.text.split("\n\n")
 
-	year = 0
+	year = np.nan
 	line1 = re.sub("\n", "", soup_split[1]).split(" ")
 	for word in line1:
 		if len(word) == 4 and word.isdigit():
 			print(word)
 			year = int(word)
 			break
-	years = years.append(pd.Series([year]))
+	years = years + [year]
 
 	count = 0
 	for i in soup_split:
@@ -48,9 +49,12 @@ for i in range(len(dois)):
 			abstract = soup_split[4]
 	abstract = re.sub("\n", " ", abstract)
 	# authors = authors.append(pd.Series([article.authors]))
-	abstracts = abstracts.append(pd.Series([re.sub(",", "", abstract)]))
-	urls = urls.append(pd.Series([url]))
+	abstracts = abstracts + [re.sub(",", "", abstract)]
 
-abstracts_table = pd.DataFrame(data = { "doi" : dois, "abstract" : abstracts, "url" : url, "year" : years })
+abstracts = pd.Series(abstracts)
+urls = pd.Series(urls)
+years = pd.Series(years)
+
+abstracts_table = pd.DataFrame(data = { "doi" : dois, "abstract" : abstracts, "url" : urls, "year" : years })
 
 abstracts_table.to_csv("abstracts.csv")
