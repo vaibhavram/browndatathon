@@ -2,6 +2,7 @@
 library(tm)
 library(reshape2)
 library(dplyr)
+library(scatterplot3d)
 setwd("~/Desktop/datathon/brown/browndatathon")
 df <- read.csv("together_data.csv", stringsAsFactors = F)
 
@@ -41,6 +42,14 @@ for (i in 1:length(uniqWords)) {
   presenceCorp <- rbind(presenceCorp, avgScores)
 }
 presenceCorp['word'] <- uniqWords
-colnames(presenceCorp) <- c('word', 'avgDV', 'avgAct', 'avgCC')
+colnames(presenceCorp) <- c('avgDV', 'avgAct', 'avgCC', 'word')
 
 presenceCorp <- presenceCorp[!is.na(presenceCorp$avgAct), ]
+
+saveRDS(presenceCorp, file = "wordScoreMat.rds")
+
+presenceCorp <- readRDS(file = "wordScoreMat.rds")
+x <- presenceCorp[,1]
+y <- presenceCorp[,2]
+z <- presenceCorp[,3]
+ptext3d(presenceCorp[,1:3], text = presenceCorp$word)
