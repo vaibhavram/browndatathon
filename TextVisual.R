@@ -71,7 +71,9 @@ sigMat <- distMat[ (abs(distMat[,1]) >= 2) | (abs(distMat[,2]) >= 2) | abs(distM
 # with(presenceCorp,text3d(x,y,z,presenceCorp$word, font = 1))
 
 
-plot_ly(presenceCorp, x = ~avgDV, y = ~avgAct, z = ~avgCC,
+Sys.setenv("plotly_username"="jonghalee")
+Sys.setenv("plotly_api_key"="IHqAz9h4RxjgM8CKVzXE")
+p <- plot_ly(presenceCorp, x = ~avgDV, y = ~avgAct, z = ~avgCC,
         text = ~paste0("(",avgDV, ",", avgAct, ",", avgCC, ")",
                        "<br>Word: ", word, 
                        "<br>num:", numAppear), 
@@ -81,5 +83,5 @@ plot_ly(presenceCorp, x = ~avgDV, y = ~avgAct, z = ~avgCC,
          scene = list(xaxis = list(title = 'Discovery'),
                       yaxis = list(title = 'Actionable'),
                       zaxis = list(title = 'Concrete')))
-
+api_create(p, filename = "datathon-plot")
 
