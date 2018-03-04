@@ -1,23 +1,46 @@
 # TextVisual.R
 library(tm)
+library(reshape2)
+library(dplyr)
 setwd("~/Desktop/datathon/brown/browndatathon")
 df <- read.csv("together_data.csv", stringsAsFactors = F)
 
+df$abstract <- gsub("[^a-zA-Z]+", " ", df$abstract)
 corpus <- paste(df$abstract, collapse = " ")
 noStopCorp <- removeWords(corpus, stopwords())
 noStopCorp <- tolower(removePunctuation(removeNumbers(noStopCorp)))
+noStopCorp <- gsub("\\s+", " ",noStopCorp)
 cleanCorp <- stemDocument(noStopCorp)
 
 allWords <- unlist(strsplit(cleanCorp, split = " "))
 uniqWords <- unique(allWords)
 
-i = 1
+# First averaging scores by document
+scores <- df[ ,c("abstract", "manuscript_id","discovery_value", "actionability", "concreteness_confidence")]
+
+scores <-
+  scores %>% group_by(manuscript_id) %>%
+  summarise(avgDV = mean(discovery_value), avgAct = mean(actionability),
+            avgCC = mean(concreteness_confidence))
+
+scores <- inner_join(scores, unique(df[ ,c("abstract", "manuscript_id")]),
+                     by = "manuscript_id")
+# Creating presence Corpus
 presenceCorp <- data.frame()
 
-for (i in (1:5)) {
+for (i in 1:length(uniqWords)) {
+  if (i %% 100 == 0) {
+    cat("Finished", i, "th word presence finding..\n")
+  }
   presence <- 
-    sapply(1:length(df$abstract), function(j) {
-    grepl(uniqWords[i], df$abstract[j], ignore.case = T)
+    sapply(1:length(scores$abstract), function(j) {
+    grepl(uniqWords[i], scores$abstract[j], ignore.case = T)
   })
-  presenceCorp <- cbind(presenceCorp, presence)
+  avgScores <- apply(scores[presence, c("avgDV", "avgAct", "avgCC")], 
+                     2, function(x) mean(x[1]))
+  presenceCorp <- rbind(presenceCorp, avgScores)
 }
+presenceCorp['word'] <- uniqWords
+colnames(presenceCorp) <- c('word', 'avgDV', 'avgAct', 'avgCC')
+
+presenceCorp <- presenceCorp[!is.na(presenceCorp$avgAct), ]
