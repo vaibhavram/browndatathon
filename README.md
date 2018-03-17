@@ -1,4 +1,4 @@
-# browndatathon
+# Brown Datathon 2018
 Work from Brown Datathon 2018 by Jong Ha Lee and Vaibhav Ramamoorthy
 
 ## File Dictionary
